@@ -289,10 +289,10 @@ class MemoryEfficientCrossAttention(nn.Module):
         self, query_dim, context_dim=None, heads=8, dim_head=64, dropout=0.0, **kwargs
     ):
         super().__init__()
-        print(
-            f"Setting up {self.__class__.__name__}. Query dim is {query_dim}, context_dim is {context_dim} and using "
-            f"{heads} heads with a dimension of {dim_head}."
-        )
+        #print(
+        #    f"Setting up {self.__class__.__name__}. Query dim is {query_dim}, context_dim is {context_dim} and using "
+        #    f"{heads} heads with a dimension of {dim_head}."
+        #)
         inner_dim = dim_head * heads
         context_dim = default(context_dim, query_dim)
 
@@ -393,21 +393,21 @@ class BasicTransformerBlock(nn.Module):
         super().__init__()
         assert attn_mode in self.ATTENTION_MODES
         if attn_mode != "softmax" and not XFORMERS_IS_AVAILABLE:
-            print(
-                f"Attention mode '{attn_mode}' is not available. Falling back to native attention. "
-                f"This is not a problem in Pytorch >= 2.0. FYI, you are running with PyTorch version {torch.__version__}"
-            )
+            #print(
+            #    f"Attention mode '{attn_mode}' is not available. Falling back to native attention. "
+            #    f"This is not a problem in Pytorch >= 2.0. FYI, you are running with PyTorch version {torch.__version__}"
+            #)
             attn_mode = "softmax"
         elif attn_mode == "softmax" and not SDP_IS_AVAILABLE:
-            print(
-                "We do not support vanilla attention anymore, as it is too expensive. Sorry."
-            )
+            #print(
+            #    "We do not support vanilla attention anymore, as it is too expensive. Sorry."
+            #)
             if not XFORMERS_IS_AVAILABLE:
                 assert (
                     False
                 ), "Please install xformers via e.g. 'pip install xformers==0.0.16'"
             else:
-                print("Falling back to xformers efficient attention.")
+                #print("Falling back to xformers efficient attention.")
                 attn_mode = "softmax-xformers"
         attn_cls = self.ATTENTION_MODES[attn_mode]
         if version.parse(torch.__version__) >= version.parse("2.0.0"):
@@ -436,8 +436,8 @@ class BasicTransformerBlock(nn.Module):
         self.norm2 = nn.LayerNorm(dim)
         self.norm3 = nn.LayerNorm(dim)
         self.checkpoint = checkpoint
-        if self.checkpoint:
-            print(f"{self.__class__.__name__} is using checkpointing")
+        #if self.checkpoint:
+        #    print(f"{self.__class__.__name__} is using checkpointing")
 
     def forward(
         self, x, context=None, additional_tokens=None, n_times_crossframe_attn_in_self=0
@@ -554,19 +554,19 @@ class SpatialTransformer(nn.Module):
         sdp_backend=None,
     ):
         super().__init__()
-        print(
-            f"constructing {self.__class__.__name__} of depth {depth} w/ {in_channels} channels and {n_heads} heads"
-        )
+        #print(
+        #    f"constructing {self.__class__.__name__} of depth {depth} w/ {in_channels} channels and {n_heads} heads"
+        #)
         from omegaconf import ListConfig
 
         if exists(context_dim) and not isinstance(context_dim, (list, ListConfig)):
             context_dim = [context_dim]
         if exists(context_dim) and isinstance(context_dim, list):
             if depth != len(context_dim):
-                print(
-                    f"WARNING: {self.__class__.__name__}: Found context dims {context_dim} of depth {len(context_dim)}, "
-                    f"which does not match the specified 'depth' of {depth}. Setting context_dim to {depth * [context_dim[0]]} now."
-                )
+                #print(
+                #    f"WARNING: {self.__class__.__name__}: Found context dims {context_dim} of depth {len(context_dim)}, "
+                #    f"which does not match the specified 'depth' of {depth}. Setting context_dim to {depth * [context_dim[0]]} now."
+                #)
                 # depth does not match context dims.
                 assert all(
                     map(lambda x: x == context_dim[0], context_dim)
